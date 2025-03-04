@@ -14,7 +14,7 @@ function AddTodo({onClose, open}) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try{
-      await addDoc(collection(db, 'tasks'),{
+      await addDoc(collection(db, 'todos'),{
         title: title,
         description: description,
         completed : false,

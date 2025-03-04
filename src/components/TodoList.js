@@ -1,5 +1,7 @@
 import "../styles/todolist.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { doc, updateDoc,deleteDoc } from "firebase/firestore";
+import { db } from "../firebase";
 import Todo from "./Todo";
 import EditTodo from "./EditTodo";
 
@@ -7,13 +9,35 @@ function TodoList({ id, title, description, completed }) {
   const [checked, setChecked] = useState(completed);
   const [open, setOpen] = useState({ edit: false, view: false });
 
+  useEffect(() => {
+    setChecked(completed); // Ensure component re-renders with correct Firestore data
+  }, [completed]);
+
   const handleClose = () => {
     setOpen({ edit: false, view: false });
   };
 
   /* function to update document in firestore */
+  const handleCheckedChange = async () => {
+    const todoDocRef = doc(db, "todos", id);
+    try {
+      const newChecked = !checked;
+      await updateDoc(todoDocRef, { completed: newChecked });
+      setChecked(newChecked); // Update state after Firestore update
+    } catch (err) {
+      alert(err);
+    }
+  };
 
-  /* function to delete a document from firstore */
+  // function to delete a document from firestore
+  const handelDelete = async() => {
+    const todoDocRef = doc(db, 'todos', id)
+    try {
+      await deleteDoc(todoDocRef)
+    } catch (err) {
+      alert(err)
+    }
+  }
 
   return (
     <div className={`todoList ${checked && "todoList--borderColor"}`}>
@@ -23,13 +47,12 @@ function TodoList({ id, title, description, completed }) {
           className="checkbox-custom"
           name="checkbox"
           checked={checked}
+          onChange={handleCheckedChange}
           type="checkbox"
-          onChange={() => 1 + 1}
         />
         <label
           htmlFor={`checkbox-${id}`}
           className="checkbox-custom-label"
-          onClick={() => setChecked(!checked)}
         ></label>
       </div>
       <div className="todoList__body">
@@ -43,7 +66,7 @@ function TodoList({ id, title, description, completed }) {
             >
               Edit
             </button>
-            <button className="todoList__deleteButton">Delete</button>
+            <button className="todoList__deleteButton" onClick={handelDelete}>Delete</button>
           </div>
           <button onClick={() => setOpen({ ...open, view: true })}>View</button>
         </div>
