@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {auth,db} from '../firebase'
 import { setDoc, doc } from 'firebase/firestore';
+import {toast} from "react-toastify"
+import "react-toastify/dist/ReactToastify.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Signup = () => {
@@ -27,23 +29,22 @@ const Signup = () => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
     
-            console.log("User registered successfully", user);
+            toast.success("You are registerd, redirecting back to login page...", {
+                position: "top-center",
+                onClose: () => navigate("/login")
+            });
     
             // Store user data in Firestore
             await setDoc(doc(db, "users", user.uid), {
                 name: name,  // Use name from input state
                 email: email,
-                 // Storing password is NOT recommended, just for testing
+                uid : user.uid,
             });
     
-            console.log("User data stored in Firestore successfully");
-    
-            // Navigate to login page after successful signup
-            navigate('/login');
-    
         } catch (error) {
-            console.error("Error during signup:", error);
-            alert("Error signing up: " + error.message);
+            toast.error(error.message, {
+                position: "bottom-center"
+            });
         }
     };
     

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {auth } from '../firebase'
+import {toast} from "react-toastify"
+import "react-toastify/dist/ReactToastify.css";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
@@ -13,11 +15,16 @@ const Login = () => {
     e.preventDefault();
     try {
         await signInWithEmailAndPassword(auth,email,password)
-        console.log("user logged in successfully")
-
-        navigate("/Title")
+        toast.success("User logged in succesfully, directing to todo app...", {
+          position: "top-center",
+          onClose: () =>  navigate("/userTodo")
+        });
+        
+      
     } catch (error) {
-        console.log(error.message)
+        toast.error(error.message, {
+          position: "bottom-center"
+        });
     }
     
   };
